@@ -1,4 +1,5 @@
-﻿using indice.Edi.Utilities;
+﻿using indice.Edi.FormatSpec;
+using indice.Edi.Utilities;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -52,7 +53,7 @@ public class EdiTextReader : EdiReader, IEdiLineInfo
     /// Reads the next EDI token from the stream as a <see cref="Nullable{Decimal}"/>.
     /// </summary>
     /// <returns>A <see cref="Nullable{Decimal}"/>. This method will return <c>null</c> at the end of an array.</returns>
-    public override decimal? ReadAsDecimal(Picture? picture = null) => ReadAsDecimalInternal(picture);
+    public override decimal? ReadAsDecimal(IFormatSpec? formatSpec = null) => ReadAsDecimalInternal(formatSpec);
 
     /// <summary>
     /// Reads the next EDI token from the stream as a <see cref="Nullable{Int32}"/>.

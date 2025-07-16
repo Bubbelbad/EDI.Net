@@ -1,4 +1,5 @@
-﻿using indice.Edi.Utilities;
+﻿using indice.Edi.FormatSpec;
+using indice.Edi.Utilities;
 using Xunit;
 
 namespace indice.Edi.Tests;
@@ -12,7 +13,7 @@ public class ToEdiStringTests
     [InlineData("12", 12, "X(1)")]
     [InlineData("12", 12, "9(1)")]
     public void IntegerToStringTest(string expectedValue, int value, string picture) {
-        Assert.Equal(expectedValue, EdiExtensions.ToEdiString(value, (Picture)picture));
+        Assert.Equal(expectedValue, EdiExtensions.ToEdiString(value, (PictureSpec)picture));
     }
 
     [Trait(Traits.Tag, "Parser")]
@@ -31,6 +32,6 @@ public class ToEdiStringTests
     [InlineData("2,23", 2.23, "9(1)", ',')]
     [InlineData("2,2", 2.2, "9(1)", ',')]
     public void FloatToStringTest(string expectedValue, decimal value, string picture, char? decimalMark) {
-        Assert.Equal(expectedValue, EdiExtensions.ToEdiString(value, (Picture)picture, decimalMark));
+        Assert.Equal(expectedValue, EdiExtensions.ToEdiString(value, (PictureSpec)picture, decimalMark));
     }
 }

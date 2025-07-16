@@ -1,4 +1,6 @@
-﻿namespace indice.Edi.Serialization;
+﻿using indice.Edi.FormatSpec;
+
+namespace indice.Edi.Serialization;
 
 /// <summary>
 /// Use <see cref="EdiValueAttribute"/> for any value inside a segment. 
@@ -6,7 +8,8 @@
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = false, AllowMultiple = true)]
 public sealed class EdiValueAttribute : EdiAttribute
 {
-    private Picture _picture;
+    private IFormatSpec _formatSpec; 
+    private PictureSpec _pictureSpec;
     private bool _Mandatory;
     private string _Description;
     private string _Format;
@@ -47,30 +50,32 @@ public sealed class EdiValueAttribute : EdiAttribute
     /// <summary>
     /// The value spec regarding value size and format.
     /// </summary>
-    public Picture Picture {
-        get { return _picture; }
+    public IFormatSpec FormatSpec {
+        get { return _formatSpec; }
+    } 
+    /// <summary>
+    /// /// The value spec regarding value size and format.
+    /// /// </summary>
+    public PictureSpec PictureSpec {
+        get { return _pictureSpec; }
     }
 
     /// <summary>
     /// Constructs the attribute with defaults
     /// </summary>
-    public EdiValueAttribute()
-       : this(default(Picture)) {
+    public EdiValueAttribute() {
+        _formatSpec = default(PictureSpec);
+    }
+
+    public EdiValueAttribute(string picture) { 
+           _formatSpec = default(PictureSpec);
     }
 
     /// <summary>
-    /// Constructs the attribute given the string representation of a <see cref="Picture"/>
+    /// Constructs the attribute given the <see cref="IFormatSpec"/>
     /// </summary>
-    public EdiValueAttribute(string picture)
-        : this((Picture)picture) {
+    /// <param name="formatSpec"></param>
+    public EdiValueAttribute(string spec, FormatterType formatterType) {
+        _formatSpec = FormatSpecFactory.Create(formatterType, spec);
     }
-
-    /// <summary>
-    /// Constructs the attribute given the <see cref="Picture"/>
-    /// </summary>
-    /// <param name="picture"></param>
-    public EdiValueAttribute(Picture picture) {
-        _picture = picture;
-    }
-    
 }

@@ -2,6 +2,7 @@
 using System.Globalization;
 using indice.Edi.Utilities;
 using indice.Edi.Serialization;
+using indice.Edi.FormatSpec;
 
 namespace indice.Edi;
 
@@ -289,9 +290,7 @@ public class EdiSerializer
         var dateString = cache.ContainsPath(valueInfo.Path) ? cache.ReadAsString(valueInfo.Path) :
                                                        read ? reader.ReadAsString() : (string)reader.Value;
         if (dateString != null) {
-            if (valueInfo.Picture != default(Picture)) {
-                dateString = dateString.Substring(0, Math.Min(dateString.Length, valueInfo.Picture.Scale));
-            }
+            dateString = dateString.Substring(0, Math.Min(dateString.Length, valueInfo.FormatSpec.Scale));
             var date = default(DateTime);
             if (dateString.TryParseEdiDate(valueInfo.Format, CultureInfo.InvariantCulture, out date)) {
                 var existingDateObject = descriptor.Info.GetValue(structure.Instance);
@@ -316,8 +315,8 @@ public class EdiSerializer
     internal static void PopulateDecimalValue(EdiReader reader, EdiStructure structure, EdiPropertyDescriptor descriptor, bool read) {
         var cache = structure.CachedReads;
         var valueInfo = descriptor.ValueInfo;
-        var numberFloat = cache.ContainsPath(valueInfo.Path) ? cache.ReadAsDecimal(valueInfo.Path, descriptor.ValueInfo.Picture, reader.Grammar.DecimalMark) :
-                                                        read ? reader.ReadAsDecimal(descriptor.ValueInfo.Picture) : (decimal?)reader.Value;
+        var numberFloat = cache.ContainsPath(valueInfo.Path) ? cache.ReadAsDecimal(valueInfo.Path, descriptor.ValueInfo.PictureSpec, reader.Grammar.DecimalMark) :
+                                                        read ? reader.ReadAsDecimal(descriptor.ValueInfo.FormatSpec) : (decimal?)reader.Value;
         if (numberFloat != null) {
             descriptor.Info.SetValue(structure.Instance, numberFloat);
         }
@@ -809,14 +808,14 @@ public class EdiSerializer
                         }
                         for (var i = 0; i < collection.Count; i++) {
                             var item = collection[i];
-                            writer.WriteValue(item, property.ValueInfo.Picture, property.ValueInfo.Format);
+                            writer.WriteValue(item, property.ValueInfo.FormatSpec, property.ValueInfo.Format);
                         }
                     } else {
-                        writer.WriteValue(value, property.ValueInfo.Picture, property.ValueInfo.Format);
+                        writer.WriteValue(value, property.ValueInfo.FormatSpec, property.ValueInfo.Format);
                     }
                     continue;
                 }
-                writer.WriteValue(value, property.ValueInfo.Picture, property.ValueInfo.Format);
+                writer.WriteValue(value, property.ValueInfo.FormatSpec, property.ValueInfo.Format);
             } else {
                 // this is somekind of structure. Group/Message/Segment/SegmentGroup/Element
                 // is it a collection of some kind?

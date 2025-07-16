@@ -1,4 +1,5 @@
-﻿using indice.Edi.Utilities;
+﻿using indice.Edi.FormatSpec;
+using indice.Edi.Utilities;
 using System.Globalization;
 
 namespace indice.Edi.Serialization;
@@ -54,7 +55,7 @@ internal static class ReadQueueExtensions
         return integer;
     }
 
-    public static decimal? ReadAsDecimal(this Queue<EdiEntry> queue, string path, Picture? picture, char? decimalMark) {
+    public static decimal? ReadAsDecimal(this Queue<EdiEntry> queue, string path, PictureSpec? picture, char? decimalMark) {
         var text = ReadAsString(queue, path);
         if (string.IsNullOrEmpty(text))
             return null;

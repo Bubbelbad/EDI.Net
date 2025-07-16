@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using indice.Edi.FormatSpec;
 using indice.Edi.Tests.Models;
 using Xunit;
 
@@ -111,10 +112,10 @@ public class EdiTextWriterTests
         var output = new StringBuilder();
         using (var writer = new EdiTextWriter(new StringWriter(output), grammar) { EscapeDecimalMarkInText = escapeDecimalMarkInText }) {
             writer.WriteToken(EdiToken.SegmentName, "AAA"); Assert.Equal("AAA", writer.Path);
-            writer.WriteValue(10.42345, (Picture)"9(1)V9(2)"); Assert.Equal("AAA[0][0]", writer.Path);
+            writer.WriteValue(10.42345, (PictureSpec)"9(1)V9(2)"); Assert.Equal("AAA[0][0]", writer.Path);
             writer.WriteToken(EdiToken.ElementStart); Assert.Equal("AAA[1]", writer.Path);
             writer.WriteToken(EdiToken.Null); Assert.Equal("AAA[1][0]", writer.Path);
-            writer.WriteValue(234.45563, (Picture)"9(1)V9(2)"); Assert.Equal("AAA[1][1]", writer.Path);
+            writer.WriteValue(234.45563, (PictureSpec)"9(1)V9(2)"); Assert.Equal("AAA[1][1]", writer.Path);
             writer.WriteValue("234,45563"); Assert.Equal("AAA[1][2]", writer.Path);
         }
         Assert.Equal(expected.ToString(), output.ToString());
@@ -135,7 +136,7 @@ public class EdiTextWriterTests
         using (var writer = new EdiTextWriter(new StringWriter(output), grammar) { EscapeDecimalMarkInText = escapeDecimalMarkInText,
                                                                                   StrictAlphanumericCharLimit = strictAlphanumericCharLimit}) {
             writer.WriteToken(EdiToken.SegmentName, "AAA"); Assert.Equal("AAA", writer.Path);
-            writer.WriteValue("STRING,LIMITED11111", (Picture)"X(14)"); Assert.Equal("AAA[0][0]", writer.Path);
+            writer.WriteValue("STRING,LIMITED11111", (PictureSpec)"X(14)"); Assert.Equal("AAA[0][0]", writer.Path);
         }
         Assert.Equal(expected.ToString(), output.ToString());
     }
@@ -154,7 +155,7 @@ public class EdiTextWriterTests
             StrictAlphanumericCharLimit = true
         }) {
             writer.WriteToken(EdiToken.SegmentName, "AAA"); Assert.Equal("AAA", writer.Path);
-            writer.WriteValue(enumratorWrite, (Picture)$"X({pictureScale})", null); Assert.Equal("AAA[0][0]", writer.Path);
+            writer.WriteValue(enumratorWrite, (PictureSpec)$"X({pictureScale})", null); Assert.Equal("AAA[0][0]", writer.Path);
         }
         Assert.Equal(expected.ToString(), output.ToString());
     }
@@ -170,7 +171,7 @@ public class EdiTextWriterTests
             StrictAlphanumericCharLimit = false
         }) {
             writer.WriteToken(EdiToken.SegmentName, "AAA"); Assert.Equal("AAA", writer.Path);
-            writer.WriteValue(enumratorWrite, (Picture)$"X(5)", null); Assert.Equal("AAA[0][0]", writer.Path);
+            writer.WriteValue(enumratorWrite, (PictureSpec)$"X(5)", null); Assert.Equal("AAA[0][0]", writer.Path);
         }
         Assert.Equal(expected.ToString(), output.ToString());
     }

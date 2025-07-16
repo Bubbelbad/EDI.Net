@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using indice.Edi.FormatSpec;
 using indice.Edi.Tests.Models;
 using indice.Edi.Utilities;
 using Xunit;
@@ -14,7 +15,7 @@ public class ParseTests
     [InlineData("290.12", "X(13)",      '.',  290.12)]
     [Trait(Traits.Tag, "Parser")]
     public void DecimalFromStringTest(string input, string format, char? decimalPoint, decimal output) {
-        Assert.Equal(new decimal?(output), EdiExtensions.Parse(input, (Picture)format, decimalPoint));
+        Assert.Equal(new decimal?(output), EdiExtensions.Parse(input, (PictureSpec)format, decimalPoint));
     }
 
 

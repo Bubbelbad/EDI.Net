@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace indice.Edi;
+namespace indice.Edi.FormatSpec;
 
 /// <summary>
 /// Picture Kind is used to specify the pattern of an Edi value.
@@ -23,12 +23,13 @@ public enum PictureKind
 /// If the field is numeric, this excludes any minus sign or the decimal point.  
 /// The decimal point is implied and its position within the data field is indicate by V.
 /// </summary>
-public struct Picture
+public struct PictureSpec : IFormatSpec
 {
     private const string PARSE_PATTERN = @"([9X]{1})\s?\((\d+?)\)\s?(V9\((\d+?)\))?";
     private readonly byte _Precision;
     private readonly ushort _Scale;
-    private readonly PictureKind _Kind;
+    private readonly FormatKind _Kind;
+
 
     /// <summary>
     /// This is the total size of the string in digits
@@ -45,9 +46,9 @@ public struct Picture
     }
 
     /// <summary>
-    /// indicates the <see cref="Kind" /> of the value represented. (ie <see cref="PictureKind.Alphanumeric"/>)
+    /// indicates the <see cref="Kind" /> of the value represented. (ie <see cref="FormatKind.Alphanumeric"/>)
     /// </summary>
-    public PictureKind Kind {
+    public FormatKind Kind {
         get { return _Kind; }
     }
 
@@ -59,6 +60,7 @@ public struct Picture
             return _Precision > 0;
         }
     }
+    public bool VariableLength => throw new NotImplementedException();
 
     /// <summary>
     /// Checks of the scale is a positive integer
@@ -69,44 +71,72 @@ public struct Picture
         }
     }
 
-    /// <summary>
-    /// Constructs an <see cref="PictureKind.Alphanumeric"/> <see cref="Picture"/> of a given <paramref name="length"/>.
-    /// </summary>
-    public Picture(ushort length) {
-        _Scale = length;
-        _Precision = 0;
-        _Kind = PictureKind.Alphanumeric;
+    public PictureSpec(string spec) // Change byte to ulong? 
+    {
+        var match = Regex.Match(spec, PARSE_PATTERN);
+
+        if (match != null) 
+        {
+            var kind = match.Groups[1].Value == "X" ? FormatKind.Alphanumeric : FormatKind.Numeric;
+            var length = byte.Parse(match.Groups[2].Value);
+            byte decimalLength = 0;
+
+            if (kind == FormatKind.Numeric && !string.IsNullOrWhiteSpace(match.Groups[3].Value)) 
+            {
+                decimalLength = byte.Parse(match.Groups[4].Value);
+            }
+
+            _Scale = (byte)(length + decimalLength);
+            _Precision = decimalLength;
+            _Kind = kind;
+
+        } else {
+            throw new ArgumentException($"Specification string '{spec}' could not be parsed to PictureSpec class", nameof(spec));
+        }
     }
 
     /// <summary>
-    /// Constructs a <see cref="Picture"/> of a given <paramref name="length"/>. Used to instantiate integer formats and alphanumerics.
+    /// Constructs an <see cref="FormatKind.Alphanumeric"/> <see cref="PictureSpec"/> of a given <paramref name="length"/>.
+    /// </summary>
+    public PictureSpec(ushort length) 
+    {
+        _Scale = length;
+        _Precision = 0;
+        _Kind = FormatKind.Alphanumeric;
+    }
+
+    /// <summary>
+    /// Constructs a <see cref="PictureSpec"/> of a given <paramref name="length"/>. Used to instantiate integer formats and alphanumerics.
     /// </summary>
     /// <param name="length"></param>
     /// <param name="kind"></param>
-    public Picture(ushort length, PictureKind kind) {
+    public PictureSpec(ushort length, FormatKind kind) 
+    {
         _Scale = length;
         _Precision = 0;
         _Kind = kind;
     }
 
     /// <summary>
-    /// Constructs a <see cref="PictureKind.Numeric"/> <seealso cref="Picture"/>.
+    /// Constructs a <see cref="PictureKind.Numeric"/> <seealso cref="PictureSpec"/>.
     /// </summary>
     /// <param name="integerLength"></param>
     /// <param name="decimalLength"></param>
-    public Picture(ushort integerLength, byte decimalLength) {
+    public PictureSpec(ushort integerLength, byte decimalLength) 
+    {
         _Scale = (ushort)(integerLength + decimalLength);
         _Precision = decimalLength;
-        _Kind = PictureKind.Numeric;
+        _Kind = FormatKind.Numeric;
     }
 
     /// <summary>
-    /// Constructs a <see cref="Picture"/>.
+    /// Constructs a <see cref="PictureSpec"/>.
     /// </summary>
     /// <param name="integerLength"></param>
     /// <param name="decimalLength"></param>
     /// <param name="kind"></param>
-    public Picture(ushort integerLength, byte decimalLength, PictureKind kind) {
+    public PictureSpec(ushort integerLength, byte decimalLength, FormatKind kind) 
+    {
         _Scale = (ushort)(integerLength + decimalLength);
         _Precision = decimalLength;
         _Kind = kind;
@@ -123,60 +153,58 @@ public struct Picture
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
-        if (obj != null && obj is Picture) {
-            var other = ((Picture)obj);
+    public override bool Equals(object obj) 
+    {
+        if (obj != null && obj is PictureSpec) 
+        {
+            var other = (PictureSpec)obj;
             return other.Precision == Precision && other.Scale == Scale;
         }
         return base.Equals(obj);
     }
 
     /// <summary>
-    /// String representation of a <see cref="Picture"/> clause.
+    /// String representation of a <see cref="PictureSpec"/> clause.
     /// </summary>
     /// <returns></returns>
-    public override string ToString() {
-        switch (Kind) {
-            case PictureKind.Alphanumeric:
+    public override string ToString() 
+    {
+        switch (Kind) 
+        {
+            case FormatKind.Alphanumeric:
                 return string.Format("X({0})", Scale);
-            case PictureKind.Numeric:
+
+            case FormatKind.Numeric:
                 return HasPrecision ? string.Format("9({0}) V9({1})", Scale - Precision, Precision) : string.Format("9({0})", Scale);
+
             default:
                 return string.Format("{0}({1},{2})", Kind, Scale, Precision);
         }
     }
 
     /// <summary>
-    /// Parse a text representation of a <see cref="Picture"/> into the struct.
+    /// Parse a text representation of a <see cref="PictureSpec"/> into the struct.
     /// </summary>
-    /// <param name="text"></param>
+    /// <param name="format"></param>
     /// <returns></returns>
-    public static Picture Parse(string text) {
-        var match = Regex.Match(text, PARSE_PATTERN);
-
-        if (match != null) {
-            var kind = match.Groups[1].Value == "X" ? PictureKind.Alphanumeric : PictureKind.Numeric;
-            var length = ushort.Parse(match.Groups[2].Value);
-            byte decimalLength = 0;
-            if (kind == PictureKind.Numeric && !string.IsNullOrWhiteSpace(match.Groups[3].Value)) {
-                decimalLength = byte.Parse(match.Groups[4].Value);
-            }
-            return new Picture(length, decimalLength, kind);
-        } else {
-            return new Picture();
-        }
+    public static PictureSpec Parse(string format) 
+    {
+        return new PictureSpec(format); 
     }
 
     /// <summary>
-    /// Implicit cast operator from <see cref="Picture"/> to <seealso cref="string"/>
+    /// Implicit cast operator from <see cref="PictureSpec"/> to <seealso cref="string"/>
     /// </summary>
     /// <param name="value"></param>
-    public static implicit operator string(Picture value) {
+    public static implicit operator string(PictureSpec value) 
+    {
         return value.ToString();
     }
 
-    /// Explicit cast operator from <see cref="string"/> to <seealso cref="Picture"/>
-    public static explicit operator Picture(string value) {
+    /// Explicit cast operator from <see cref="string"/> to <seealso cref="PictureSpec"/>
+    public static explicit operator PictureSpec(string value) 
+    {
         return Parse(value);
     }
+
 }
