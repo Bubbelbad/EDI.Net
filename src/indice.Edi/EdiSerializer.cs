@@ -426,6 +426,15 @@ public class EdiSerializer
                 } else if (level.GroupMembers.Length > 1 && !level.GroupContains(readerSegment as string)) {
                     level.Close(); // Close this level
                     continue;
+                } 
+                else if (FindForCurrentSegment(reader, level, EdiStructureType.SegmentGroup) == null &&
+                    FindForCurrentSegment(reader, level, EdiStructureType.Segment) == null &&
+                    level.SequenceEnd == null &&
+                    level.GroupMembers.Length == 1 &&
+                    level.GroupMembers[0].Segment == level.GroupStart.Segment)
+                {
+                    level.Close();
+                    continue;
                 }
             }
             var clearUpTo = stack.Reverse().FirstOrDefault(x => x.IsClosed)?.Container;
