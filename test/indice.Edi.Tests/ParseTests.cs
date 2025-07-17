@@ -96,7 +96,7 @@ IEA*1*000000001~
 
     [Fact]
     [Trait(Traits.Issue, "#280")]
-    public void ParseWithEmptySegmentGroup() 
+    public void ParseWithSingleSegmentGroup() 
     {
         var grammar = EdiGrammar.NewEdiFact();
         var edi = $@"UNA:+.? '
