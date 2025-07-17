@@ -427,12 +427,7 @@ public class EdiSerializer
                     level.Close(); // Close this level
                     continue;
                 } 
-                else if (FindForCurrentSegment(reader, level, EdiStructureType.SegmentGroup) == null &&
-                    FindForCurrentSegment(reader, level, EdiStructureType.Segment) == null &&
-                    level.SequenceEnd == null &&
-                    level.GroupMembers.Length == 1 &&
-                    level.GroupMembers[0].Segment == level.GroupStart.Segment)
-                {
+                else if(SingleSegmentGroup(reader, level)) {
                     level.Close();
                     continue;
                 }
@@ -508,6 +503,17 @@ public class EdiSerializer
         }
         stack.Push(new EdiStructure(newContainer, current, property, propValue, index, childCache ?? current.CachedReads));
         return true;
+    }
+
+    private bool SingleSegmentGroup(EdiReader reader, EdiStructure level) {
+        var groups = level.GetMatchingProperties(EdiStructureType.SegmentGroup);
+        var segments = level.GetMatchingProperties(EdiStructureType.Segment);
+
+        return groups.Length == 0 &&
+                segments.Length == 0 &&
+                level.SequenceEnd == null &&
+                level.GroupMembers.Length == 1 &&
+                level.GroupMembers[0].Segment == level.GroupStart.Segment; 
     }
 
     private EdiPropertyDescriptor FindForCurrentSegment(EdiReader reader, EdiStructure currentStructure, EdiStructureType newContainerType) {
