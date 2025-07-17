@@ -427,7 +427,7 @@ public class EdiSerializer
                     level.Close(); // Close this level
                     continue;
                 } 
-                else if(SingleSegmentGroup(reader, level)) {
+                else if(SingleSegmentGroup(level)) {
                     level.Close();
                     continue;
                 }
@@ -505,11 +505,11 @@ public class EdiSerializer
         return true;
     }
 
-    private bool SingleSegmentGroup(EdiReader reader, EdiStructure level) {
-        var groups = level.GetMatchingProperties(EdiStructureType.SegmentGroup);
+    private bool SingleSegmentGroup(EdiStructure level) {
+        //var groups = level.GetMatchingProperties(EdiStructureType.SegmentGroup);
         var segments = level.GetMatchingProperties(EdiStructureType.Segment);
 
-        return groups.Length == 0 &&
+        return /*groups.Length == 0 &&*/
                 segments.Length == 0 &&
                 level.SequenceEnd == null &&
                 level.GroupMembers.Length == 1 &&
