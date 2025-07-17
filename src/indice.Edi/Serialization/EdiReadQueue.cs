@@ -55,12 +55,12 @@ internal static class ReadQueueExtensions
         return integer;
     }
 
-    public static decimal? ReadAsDecimal(this Queue<EdiEntry> queue, string path, PictureSpec? picture, char? decimalMark) {
+    public static decimal? ReadAsDecimal(this Queue<EdiEntry> queue, string path, IFormatSpec? formatSpec, char? decimalMark) {
         var text = ReadAsString(queue, path);
         if (string.IsNullOrEmpty(text))
             return null;
         
-        return text.Parse(picture, decimalMark);
+        return text.Parse(formatSpec, decimalMark);
     }
 }
 

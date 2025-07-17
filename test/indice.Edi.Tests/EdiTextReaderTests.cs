@@ -314,6 +314,84 @@ public class EdiTextReaderTests
         Assert.Equal("20101000064507", unz.TrailerControlReference);
     }
 
+    [Fact]
+    [Trait(Traits.Tag, "EDIFact")]
+    public void EdiFact_02_Test() {
+        var grammar = EdiGrammar.NewEdiFact();
+        var interchange = default(Models.EdiFact02.Interchange);
+        using (var stream = Helpers.GetResourceStream("edifact.02.edi")) {
+            interchange = new EdiSerializer().Deserialize<Models.EdiFact02.Interchange>(new StreamReader(stream), grammar);
+        }
+
+        //Test Interchange de-serialization
+        Assert.Equal("UNOC", interchange.SyntaxIdentifier);
+        Assert.Equal(3, interchange.SyntaxVersion);
+        Assert.Equal("1234567891123", interchange.SenderId);
+        Assert.Equal("14", interchange.PartnerIDCodeQualifier);
+        Assert.Equal("7080005059275", interchange.RecipientId);
+        Assert.Equal("14", interchange.ParterIDCode);
+        Assert.Equal("SPOTMARKED", interchange.RoutingAddress);
+        Assert.Equal(new DateTime(2012, 10, 10, 11, 4, 0), interchange.DateOfPreparation);
+        Assert.Equal("HBQ001", interchange.ControlRef);
+
+
+        var quote = interchange.QuoteMessage;
+
+        //Test Quote Message Header
+        Assert.Equal("1", quote.MessageRef);
+        Assert.Equal("QUOTES", quote.MessageType);
+        Assert.Equal("D", quote.Version);
+        Assert.Equal("96A", quote.ReleaseNumber);
+        Assert.Equal("UN", quote.ControllingAgency);
+        Assert.Equal("EDIEL2", quote.AssociationAssignedCode);
+        Assert.Equal("S", quote.CommonAccessRef);
+
+        Assert.Equal("310", quote.MessageName);
+        Assert.Equal("2010101900026812", quote.DocumentNumber);
+        Assert.Equal("9", quote.MessageFunction);
+        Assert.Equal("AB", quote.ResponseType);
+
+        Assert.NotEqual(default(int), interchange.QuoteMessage.MessageDate.ID);
+        Assert.NotEqual(default(int), interchange.QuoteMessage.ProcessingStartDate.ID);
+        Assert.NotEqual(default(int), interchange.QuoteMessage.ProcessingEndDate.ID);
+
+        Assert.Equal(new DateTime(2010, 10, 19, 11, 04, 00), quote.MessageDate.DateTime);
+        Assert.Equal(new DateTime(2010, 10, 19, 23, 00, 00), quote.ProcessingStartDate.DateTime);
+        Assert.Equal(new DateTime(2010, 10, 20, 23, 00, 00), quote.ProcessingEndDate.DateTime);
+
+        Assert.Equal(1, quote.UTCOffset.Hours);
+
+        Assert.Equal("2", quote.CurrencyQualifier);
+        Assert.Equal("SEK", quote.ISOCurrency);
+
+
+        Assert.Equal(2, quote.NAD.Count);
+        Assert.Equal("FR", quote.NAD[0].PartyQualifier);
+        Assert.Equal("1234567891123", quote.NAD[0].PartyId);
+        Assert.Equal("9", quote.NAD[0].ResponsibleAgency);
+
+        Assert.Equal("DO", quote.NAD[1].PartyQualifier);
+        Assert.Equal("7080005059275", quote.NAD[1].PartyId);
+        Assert.Equal("9", quote.NAD[1].ResponsibleAgency);
+
+        Assert.Equal("105", quote.LocationQualifier);
+        Assert.Equal("SE1", quote.LocationId);
+        Assert.Equal("SM", quote.LocationResponsibleAgency);
+
+        Assert.Equal("SE1", quote.LocationId);
+        Assert.Equal("SM", quote.LocationResponsibleAgency);
+
+        var linArray = quote.Lines;
+        Assert.Equal(new DateTime(2010, 10, 19, 23, 00, 00), linArray[0].Period.Date.From);
+        Assert.Equal(new DateTime(2010, 10, 20, 00, 00, 00), linArray[1].Period.Date.From);
+        Assert.Equal(new DateTime(2010, 10, 20, 01, 00, 00), linArray[2].Period.Date.From);
+        Assert.All(quote.Lines, i => Assert.Equal(2, i.Prices.Count));
+
+        Assert.Equal(1, interchange.TrailerControlCount);
+        Assert.Equal("20101000064507", interchange.TrailerControlReference);
+    }
+
+
     private static void AssertQuote2Message(EdiFact01_Segments.Quote2 message) {
         var unh = message.Header;
 

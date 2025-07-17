@@ -1,4 +1,5 @@
-﻿using indice.Edi.Serialization;
+﻿using indice.Edi.FormatSpec;
+using indice.Edi.Serialization;
 using indice.Edi.Tests.Models.EdiFact01;
 
 namespace indice.Edi.Tests.Models;
@@ -69,7 +70,7 @@ class EdiFact01_Segments
         public UNT_Segment UNT { get; set; }
     }
 
-    [EdiSegment, EdiPath("UNB")]
+    [EdiSegment(FormatterType.EdifactSpec), EdiPath("UNB")]
     public class UNB
     {
         [EdiValue("X(4)", Mandatory = true, Path = "UNB/0")]
@@ -104,7 +105,7 @@ class EdiFact01_Segments
         public int AckRequest { get; set; }
     }
 
-    [EdiSegment, EdiPath("UNH")]
+    [EdiSegment(FormatterType.EdifactSpec), EdiPath("UNH")]
     public class UNH_Segment
     {
         [EdiValue("X(14)", Path = "UNH/0/0")]
@@ -130,7 +131,7 @@ class EdiFact01_Segments
         public string CommonAccessRef { get; set; }
     }
 
-    [EdiSegment, EdiPath("UNZ")]
+    [EdiSegment(FormatterType.EdifactSpec), EdiPath("UNZ")]
     public class UNZ
     {
         [EdiValue("X(1)", Path = "UNZ/0")]
@@ -140,7 +141,7 @@ class EdiFact01_Segments
         public string TrailerControlReference { get; set; }
     }
 
-    [EdiSegment, EdiPath("BGM")]
+    [EdiSegment(FormatterType.EdifactSpec), EdiPath("BGM")]
     public class BGM_Segment
     {
         [EdiValue("X(3)", Path = "BGM/0/0")]
@@ -156,7 +157,7 @@ class EdiFact01_Segments
         public string ResponseType { get; set; }
     }
 
-    [EdiSegment, EdiPath("DTM")]
+    [EdiSegment(FormatterType.EdifactSpec), EdiPath("DTM")]
     public class DTM_Segment
     {
         [EdiCondition("137", Path = "DTM/0/0")]
@@ -171,7 +172,7 @@ class EdiFact01_Segments
         public UTCOffset UTCOffset { get; set; }
     }
 
-    [EdiSegment, EdiPath("CUX")]
+    [EdiSegment(FormatterType.EdifactSpec), EdiPath("CUX")]
     public class CUX_Segment
     {
         [EdiValue("X(3)", Path = "CUX/0/0")]
@@ -194,14 +195,14 @@ class EdiFact01_Segments
         public string LocationResponsibleAgency { get; set; }
     }
 
-    [EdiSegment, EdiPath("UNS")]
+    [EdiSegment(FormatterType.EdifactSpec), EdiPath("UNS")]
     public class UNS_Segment
     {
         [EdiValue("X(1)", Path = "UNS/0/0")]
         public char? UNS { get; set; }
     }
 
-    [EdiSegment, EdiPath("UNT")]
+    [EdiSegment(FormatterType.EdifactSpec), EdiPath("UNT")]
     public class UNT_Segment
     {
         [EdiValue("X(1)", Path = "UNT/0")]

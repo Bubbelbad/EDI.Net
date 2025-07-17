@@ -138,7 +138,7 @@ internal class EdiStructure {
         _Container = parent;
         _Instance = instance;
         _Index = index;
-        _Descriptor = typeStore.Get(instance.GetType());
+        _Descriptor = typeStore.Get(instance.GetType()); // Here the StructureType was in the wrong format!
         _CachedReads = cache;
         _Conditions = Descriptor.Attributes.OfType<EdiConditionAttribute>().Concat(property?.Conditions ?? []).ToArray();
         _ConditionStackMode = _Conditions.Length > 0 && (

@@ -315,7 +315,7 @@ public class EdiSerializer
     internal static void PopulateDecimalValue(EdiReader reader, EdiStructure structure, EdiPropertyDescriptor descriptor, bool read) {
         var cache = structure.CachedReads;
         var valueInfo = descriptor.ValueInfo;
-        var numberFloat = cache.ContainsPath(valueInfo.Path) ? cache.ReadAsDecimal(valueInfo.Path, descriptor.ValueInfo.PictureSpec, reader.Grammar.DecimalMark) :
+        var numberFloat = cache.ContainsPath(valueInfo.Path) ? cache.ReadAsDecimal(valueInfo.Path, descriptor.ValueInfo.FormatSpec, reader.Grammar.DecimalMark) :
                                                         read ? reader.ReadAsDecimal(descriptor.ValueInfo.FormatSpec) : (decimal?)reader.Value;
         if (numberFloat != null) {
             descriptor.Info.SetValue(structure.Instance, numberFloat);
