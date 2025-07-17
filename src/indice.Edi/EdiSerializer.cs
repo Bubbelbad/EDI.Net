@@ -506,11 +506,9 @@ public class EdiSerializer
     }
 
     private bool SingleSegmentGroup(EdiStructure level) {
-        //var groups = level.GetMatchingProperties(EdiStructureType.SegmentGroup);
         var segments = level.GetMatchingProperties(EdiStructureType.Segment);
 
-        return /*groups.Length == 0 &&*/
-                segments.Length == 0 &&
+        return segments.Length == 0 &&
                 level.SequenceEnd == null &&
                 level.GroupMembers.Length == 1 &&
                 level.GroupMembers[0].Segment == level.GroupStart.Segment; 
